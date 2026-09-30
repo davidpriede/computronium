@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computronium | Ultimate Substrate for Information Processing</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            cyan: '#00f0ff',
+                            blue: '#0077ff',
+                            purple: '#9d00ff',
+                            green: '#00ff66',
+                            dark: '#030712',
+                            card: '#0b0f19',
+                            border: '#1e293b',
+                            lightBg: '#f8fafc',
+                            lightCard: '#ffffff',
+                            lightBorder: '#cbd5e1'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Courier New', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js for 3D/Particle effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+        .glow-cyan {
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 0 0 20px rgba(0, 240, 255, 0.4);
+        }
+        .glow-green {
+            text-shadow: 0 0 10px rgba(0, 255, 102, 0.6), 0 0 20px rgba(0, 255, 102, 0.4);
+        }
+        
+        /* Dark Theme Default */
+        body.dark {
+            background-color: #030712;
+            color: #f3f4f6;
+        }
+        .dark .glass-panel {
+            background: rgba(11, 15, 25, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(30, 41, 59, 0.8);
+        }
+        .dark .glass-panel:hover {
+            border-color: rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.1);
+        }
+        .dark .sim-box {
+            background-color: rgba(3, 7, 18, 0.8);
+            border-color: #1e293b;
+        }
+
+        /* Light Theme */
+        body:not(.dark) {
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        body:not(.dark) .glass-panel {
+            background: rgba(255, 255, 102, 0.03);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(203, 213, 225, 0.9);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+        body:not(.dark) .glass-panel:hover {
+            border-color: rgba(0, 119, 255, 0.4);
+            box-shadow: 0 0 25px rgba(0, 119, 255, 0.1);
+        }
+        body:not(.dark) .sim-box {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+        body:not(.dark) input[type="range"] {
+            background-color: #e2e8f0 !important;
+        }
+
+        canvas#bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: inherit;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+        }
+    </style>
+</head>
+<body class="dark selection:bg-cyber-cyan selection:text-black">
+
+    <canvas id="bgCanvas"></canvas>
+
+    <!-- Navigation Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-cyber-border/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-cyber-cyan to-cyber-blue p-0.5 flex items-center justify-center shadow-lg shadow-cyber-cyan/20">
+                    <div class="w-full h-full bg-cyber-dark dark:bg-cyber-dark bg-white rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-microchip text-cyber-cyan text-lg animate-pulse"></i>
+                    </div>
+                </div>
+                <div>
+                    <span class="text-xl font-extrabold tracking-wider bg-gradient-to-r from-cyber-cyan via-cyber-blue to-cyber-purple bg-clip-text text-transparent">COMPUTRONIUM</span>
+                    <span class="block text-[10px] text-cyber-cyan/70 dark:text-cyber-cyan/75 font-mono tracking-widest uppercase">Substrate v9.4</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium">
+                <a href="#hero" class="dark:text-slate-300 text-slate-700 hover:text-cyber-cyan transition-colors">Core</a>
+                <a href="#origin" class="dark:text-slate-300 text-slate-700 hover:text-cyber-cyan transition-colors">Concept</a>
+                <a href="#calculator" class="dark:text-slate-300 text-slate-700 hover:text-cyber-cyan transition-colors">Physics Limits</a>
+                <a href="#megastructures" class="dark:text-slate-300 text-slate-700 hover:text-cyber-cyan transition-colors">Megastructures</a>
+                <a href="#converter" class="dark:text-slate-300 text-slate-700 hover:text-cyber-cyan transition-colors">Matter Converter</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <!-- Theme Toggle Button -->
+                <button onclick="toggleTheme()" aria-label="Toggle Theme" class="w-10 h-10 rounded-xl glass-panel flex items-center justify-center text-cyber-cyan hover:scale-105 transition-all shadow-sm">
+                    <i id="themeIcon" class="fa-solid fa-sun text-lg"></i>
+                </button>
+
+                <a href="#converter" class="hidden sm:inline-flex relative group items-center px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-black bg-gradient-to-r from-cyber-cyan to-cyber-blue rounded-lg shadow-lg shadow-cyber-cyan/30 hover:shadow-cyber-cyan/60 transition-all duration-300">
+                    <span class="relative z-10 flex items-center gap-2">
+                        <i class="fa-solid fa-atom"></i> Convert Matter
+                    </span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section id="hero" class="relative min-h-screen flex items-center justify-center pt-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyber-cyan/10 border border-cyber-cyan/30 text-cyber-cyan text-xs font-mono uppercase tracking-widest mb-8 shadow-inner shadow-cyber-cyan/20">
+                <span class="w-2 h-2 rounded-full bg-cyber-cyan animate-ping"></span>
+                Theoretical Maximum Information Processing
+            </div>
+            
+            <h1 class="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight mb-6">
+                MATTER WHOSE <br/>
+                <span class="bg-gradient-to-r from-cyber-cyan via-cyber-blue to-cyber-purple bg-clip-text text-transparent glow-cyan">ONLY JOB IS TO THINK</span>
+            </h1>
+
+            <p class="max-w-3xl mx-auto text-lg sm:text-xl dark:text-slate-400 text-slate-600 font-light mb-10 leading-relaxed">
+                Computronium is hypothetical matter rearranged at the subatomic scale so that every constituent particle actively engages in computation, eliminating dead structural weight.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#calculator" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-cyber-cyan to-cyber-blue text-black font-bold uppercase tracking-wider hover:opacity-95 shadow-xl shadow-cyber-cyan/25 transition-all flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-calculator"></i> Run Physics Calculator
+                </a>
+                <a href="#origin" class="w-full sm:w-auto px-8 py-4 rounded-xl glass-panel dark:text-slate-200 text-slate-800 font-bold uppercase tracking-wider hover:border-cyber-cyan/50 transition-all flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-book-open"></i> Explore Origin
+                </a>
+            </div>
+
+            <!-- Core Status HUD -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 text-left">
+                <div class="glass-panel p-5 rounded-xl border">
+                    <div class="text-xs font-mono dark:text-slate-400 text-slate-500 uppercase">Bekenstein Bound</div>
+                    <div class="text-xl font-bold text-cyber-cyan mt-1 font-mono">10³¹ - 10⁵⁰ OPS</div>
+                    <div class="text-[10px] dark:text-slate-500 text-slate-400 mt-1">Per Kilogram Max Cap</div>
+                </div>
+                <div class="glass-panel p-5 rounded-xl border">
+                    <div class="text-xs font-mono dark:text-slate-400 text-slate-500 uppercase">Bremermann's Limit</div>
+                    <div class="text-xl font-bold text-cyber-blue mt-1 font-mono">1.36 × 10⁵⁰ kg⁻¹s⁻¹</div>
+                    <div class="text-[10px] dark:text-slate-500 text-slate-400 mt-1">Maximum Bit Rate</div>
+                </div>
+                <div class="glass-panel p-5 rounded-xl border">
+                    <div class="text-xs font-mono dark:text-slate-400 text-slate-500 uppercase">Landauer Principle</div>
+                    <div class="text-xl font-bold text-cyber-green mt-1 font-mono">kT ln 2 joules</div>
+                    <div class="text-[10px] dark:text-slate-500 text-slate-400 mt-1">Minimum Erasure Cost</div>
+                </div>
+                <div class="glass-panel p-5 rounded-xl border">
+                    <div class="text-xs font-mono dark:text-slate-400 text-slate-500 uppercase">Substrate Density</div>
+                    <div class="text-xl font-bold text-cyber-purple mt-1 font-mono">100% Active</div>
+                    <div class="text-[10px] dark:text-slate-500 text-slate-400 mt-1">Zero Dead Mass</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="origin" class="py-24 px-4 sm:px-6 lg:px-8 relative">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-cyber-cyan text-xs font-mono uppercase tracking-widest">Etymology & Foundation</span>
+                <h2 class="text-3xl sm:text-5xl font-extrabold mt-2 mb-4">Origin & Conceptual Evolution</h2>
+                <div class="w-20 h-1 bg-gradient-to-r from-cyber-cyan to-cyber-blue mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="glass-panel p-8 rounded-2xl relative overflow-hidden group">
+                    <div class="absolute -right-10 -bottom-10 text-9xl font-black text-cyber-cyan/5 group-hover:text-cyber-cyan/10 transition-colors pointer-events-none">01</div>
+                    <div class="w-12 h-12 rounded-xl bg-cyber-cyan/10 border border-cyber-cyan/30 flex items-center justify-center text-cyber-cyan text-xl mb-6">
+                        <i class="fa-solid fa-feather-pointed"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 dark:text-white text-slate-900">Charles Stross & Accelerando</h3>
+                    <p class="dark:text-slate-400 text-slate-600 leading-relaxed text-sm">
+                        The term was popularized by science-fiction master Charles Stross in his seminal 2005 novel <em class="text-cyber-cyan">Accelerando</em>. Stross explored post-singularity economics where decentralized intelligence transforms everyday objects into supercomputing substrates.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass-panel p-8 rounded-2xl relative overflow-hidden group">
+                    <div class="absolute -right-10 -bottom-10 text-9xl font-black text-cyber-blue/5 group-hover:text-cyber-blue/10 transition-colors pointer-events-none">02</div>
+                    <div class="w-12 h-12 rounded-xl bg-cyber-blue/10 border border-cyber-blue/30 flex items-center justify-center text-cyber-blue text-xl mb-6">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 dark:text-white text-slate-900">Hans Moravec & Pioneers</h3>
+                    <p class="dark:text-slate-400 text-slate-600 leading-relaxed text-sm">
+                        Earlier speculative robotics and transhumanist work by Hans Moravec laid the groundwork for universal assemblers and crystalline logic matrices capable of maximizing processing speed per gram of matter.
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-panel p-8 rounded-2xl relative overflow-hidden group">
+                    <div class="absolute -right-10 -bottom-10 text-9xl font-black text-cyber-green/5 group-hover:text-cyber-green/10 transition-colors pointer-events-none">03</div>
+                    <div class="w-12 h-12 rounded-xl bg-cyber-green/10 border border-cyber-green/30 flex items-center justify-center text-cyber-green text-xl mb-6">
+                        <i class="fa-solid fa-cubes"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 dark:text-white text-slate-900">Subatomic Rearrangement</h3>
+                    <p class="dark:text-slate-400 text-slate-600 leading-relaxed text-sm">
+                        Ordinary matter features vast empty space inside atoms and inefficient structural bonds. Computronium reconfigures quarks, electrons, and fields into hyper-dense logic gates where every particle executes parallel operations.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="calculator" class="py-24 px-4 sm:px-6 lg:px-8 relative bg-gradient-to-b dark:from-cyber-dark dark:to-cyber-card/40 from-slate-100 to-slate-200/50">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-cyber-cyan text-xs font-mono uppercase tracking-widest">Thermodynamic & Quantum Bounds</span>
+                <h2 class="text-3xl sm:text-5xl font-extrabold mt-2 mb-4">Computronium Capacity Calculator</h2>
+                <p class="dark:text-slate-400 text-slate-600">Simulate theoretical processing limits governed by mass, energy, and temperature boundaries.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- Controls Column -->
+                <div class="lg:col-span-6 glass-panel p-8 rounded-2xl">
+                    <h3 class="text-lg font-bold mb-6 dark:text-white text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-cyber-cyan"></i> Parameter Adjustments
+                    </h3>
+
+                    <div class="space-y-6">
+                        <!-- Mass Input -->
+                        <div>
+                            <div class="flex justify-between text-sm mb-2 font-mono">
+                                <span class="dark:text-slate-300 text-slate-700">Substrate Mass (kg):</span>
+                                <span id="massValue" class="text-cyber-cyan font-bold">1.00 kg</span>
+                            </div>
+                            <input type="range" id="massRange" min="0.001" max="1000" step="0.001" value="1" 
+                                class="w-full accent-cyber-cyan bg-slate-800 h-2 rounded-lg cursor-pointer">
+                            <div class="flex justify-between text-[10px] dark:text-slate-500 text-slate-400 mt-1 font-mono">
+                                <span>1 gram (Processor Core)</span>
+                                <span>1 Metric Ton</span>
+                            </div>
+                        </div>
+
+                        <!-- Energy Input -->
+                        <div>
+                            <div class="flex justify-between text-sm mb-2 font-mono">
+                                <span class="dark:text-slate-300 text-slate-700">Energy Input (Joules):</span>
+                                <span id="energyValue" class="text-cyber-blue font-bold">8.988 × 10¹⁶ J</span>
+                            </div>
+                            <input type="range" id="energyRange" min="1e10" max="1e20" step="1e10" value="8.988e16" 
+                                class="w-full accent-cyber-blue bg-slate-800 h-2 rounded-lg cursor-pointer">
+                            <div class="flex justify-between text-[10px] dark:text-slate-500 text-slate-400 mt-1 font-mono">
+                                <span>10¹⁰ J (Power Plant)</span>
+                                <span>10²⁰ J (Stellar Output)</span>
+                            </div>
+                        </div>
+
+                        <!-- Temperature Input -->
+                        <div>
+                            <div class="flex justify-between text-sm mb-2 font-mono">
+                                <span class="dark:text-slate-300 text-slate-700">Operating Temperature (Kelvin):</span>
+                                <span id="tempValue" class="text-cyber-green font-bold">300 K</span>
+                            </div>
+                            <input type="range" id="tempRange" min="0.1" max="1000" step="1" value="300" 
+                                class="w-full accent-cyber-green bg-slate-800 h-2 rounded-lg cursor-pointer">
+                            <div class="flex justify-between text-[10px] dark:text-slate-500 text-slate-400 mt-1 font-mono">
+                                <span>0.1 K (Cryo)</span>
+                                <span>1000 K (Magma Core)</span>
+                            </div>
+                        </div>
+
+                        <!-- Preset Buttons -->
+                        <div class="pt-4 border-t dark:border-cyber-border border-slate-200">
+                            <span class="text-xs font-mono dark:text-slate-400 text-slate-500 block mb-3">Quick Presets:</span>
+                            <div class="grid grid-cols-3 gap-3">
+                                <button onclick="setPreset(1, 8.988e16, 300)" class="px-3 py-2 text-xs font-mono rounded-lg glass-panel text-cyber-cyan hover:bg-cyber-cyan/10 transition-all">1kg Standard</button>
+                                <button onclick="setPreset(5.972e24, 5.38e41, 288)" class="px-3 py-2 text-xs font-mono rounded-lg glass-panel text-cyber-blue hover:bg-cyber-blue/10 transition-all">Earth Mass</button>
+                                <button onclick="setPreset(1.989e30, 1.78e47, 5778)" class="px-3 py-2 text-xs font-mono rounded-lg glass-panel text-cyber-green hover:bg-cyber-green/10 transition-all">Solar Mass</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Output Column -->
+                <div class="lg:col-span-6 glass-panel p-8 rounded-2xl border border-cyber-cyan/30">
+                    <h3 class="text-lg font-bold mb-6 dark:text-white text-slate-900 flex items-center justify-between">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-chart-line text-cyber-green"></i> Theoretical Limits Output</span>
+                        <span class="text-xs font-mono text-cyber-green animate-pulse">● LIVE CALCULATION</span>
+                    </h3>
+
+                    <div class="space-y-6">
+                        <!-- Bremermann Limit -->
+                        <div class="p-4 rounded-xl sim-box border">
+                            <div class="text-xs font-mono dark:text-slate-400 text-slate-500">Bremermann's Limit (Max Bit Rate)</div>
+                            <div id="outBremermann" class="text-2xl font-black text-cyber-cyan mt-1 font-mono">1.36 × 10⁵⁰ ops/sec</div>
+                            <div class="text-[11px] dark:text-slate-500 text-slate-500 mt-1">Maximum rate of computation for given mass-energy ($mc^2 / h$)</div>
+                        </div>
+
+                        <!-- Landauer Limit -->
+                        <div class="p-4 rounded-xl sim-box border">
+                            <div class="text-xs font-mono dark:text-slate-400 text-slate-500">Landauer Minimum Heat Dissipation</div>
+                            <div id="outLandauer" class="text-2xl font-black text-cyber-blue mt-1 font-mono">2.87 × 10⁻²¹ Joules/bit</div>
+                            <div class="text-[11px] dark:text-slate-500 text-slate-500 mt-1">Minimum energy required per elementary logic operation at given temperature ($kT \ln 2$)</div>
+                        </div>
+
+                        <!-- Bekenstein Bound -->
+                        <div class="p-4 rounded-xl sim-box border">
+                            <div class="text-xs font-mono dark:text-slate-400 text-slate-500">Bekenstein Bound (Max Information Capacity)</div>
+                            <div id="outBekenstein" class="text-2xl font-black text-cyber-green mt-1 font-mono">2.58 × 10⁴³ Bits</div>
+                            <div class="text-[11px] dark:text-slate-500 text-slate-500 mt-1">Maximum information that can be contained within a given finite region</div>
+                        </div>
+
+                        <!-- Summary Verdict -->
+                        <div class="p-4 rounded-xl bg-gradient-to-r from-cyber-cyan/10 to-cyber-purple/10 border border-cyber-cyan/30 flex items-center gap-4">
+                            <div class="text-3xl text-cyber-cyan"><i class="fa-solid fa-microchip"></i></div>
+                            <div>
+                                <div class="text-xs font-mono text-cyber-cyan uppercase font-bold">Substrate Efficiency Status</div>
+                                <div id="outStatus" class="text-sm font-medium dark:text-slate-200 text-slate-800 mt-0.5">Optimal quantum density achieved. Zero thermodynamic waste detected.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="megastructures" class="py-24 px-4 sm:px-6 lg:px-8 relative">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-cyber-cyan text-xs font-mono uppercase tracking-widest">Cosmic Scale Engineering</span>
+                <h2 class="text-3xl sm:text-5xl font-extrabold mt-2 mb-4">Megastructures & Applications</h2>
+                <p class="dark:text-slate-400 text-slate-600">How advanced post-singularity civilizations harness computronium across stellar systems.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 1. Matrioshka Brain -->
+                <div class="glass-panel p-8 rounded-2xl flex flex-col justify-between group hover:border-cyber-cyan transition-all">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-cyber-cyan/10 border border-cyber-cyan/30 flex items-center justify-center text-cyber-cyan text-xl mb-6">
+                            <i class="fa-solid fa-sun"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 dark:text-white text-slate-900">Matrioshka Brain</h3>
+                        <p class="dark:text-slate-400 text-slate-600 text-sm leading-relaxed mb-6">
+                            A stellar-scale megastructure powered directly by star lifting. Composed of nested Dyson spheres entirely built of computronium, capturing nearly 100% of a star's total radiant energy output for computation.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t dark:border-cyber-border border-slate-200 flex items-center justify-between text-xs font-mono dark:text-slate-400 text-slate-500">
+                        <span>Scale: Type II Civ</span>
+                        <span class="text-cyber-cyan">10⁴² OPS+</span>
+                    </div>
+                </div>
+
+                <!-- 2. Jupiter Brain -->
+                <div class="glass-panel p-8 rounded-2xl flex flex-col justify-between group hover:border-cyber-blue transition-all">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-cyber-blue/10 border border-cyber-blue/30 flex items-center justify-center text-cyber-blue text-xl mb-6">
+                            <i class="fa-solid fa-globe"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 dark:text-white text-slate-900">Jupiter Brain</h3>
+                        <p class="dark:text-slate-400 text-slate-600 text-sm leading-relaxed mb-6">
+                            A planetary-scale supercomputer constructed from converted gas giants or rocky planets. Cooled by liquid hydrogen or helium circulation, operating at extreme densities for planet-wide hive-mind cognition.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t dark:border-cyber-border border-slate-200 flex items-center justify-between text-xs font-mono dark:text-slate-400 text-slate-500">
+                        <span>Scale: Planetary</span>
+                        <span class="text-cyber-blue">10³⁵ OPS+</span>
+                    </div>
+                </div>
+
+                <!-- 3. Utility Fog -->
+                <div class="glass-panel p-8 rounded-2xl flex flex-col justify-between group hover:border-cyber-green transition-all">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-cyber-green/10 border border-cyber-green/30 flex items-center justify-center text-cyber-green text-xl mb-6">
+                            <i class="fa-solid fa-cloud"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 dark:text-white text-slate-900">Utility Fog & Programmable Matter</h3>
+                        <p class="dark:text-slate-400 text-slate-600 text-sm leading-relaxed mb-6">
+                            Microscopic, networked robots made of computronium that can link together to form any physical tool, solid furniture, or dynamic clothing on demand—representing the near-term stepping stone to solid-state intelligence.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t dark:border-cyber-border border-slate-200 flex items-center justify-between text-xs font-mono dark:text-slate-400 text-slate-500">
+                        <span>Scale: Nanotech</span>
+                        <span class="text-cyber-green">Distributed</span>
+                    </div>
+                </div>
+
+                <!-- 4. Star Lifting -->
+                <div class="glass-panel p-8 rounded-2xl flex flex-col justify-between group hover:border-cyber-purple transition-all">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-cyber-purple/10 border border-cyber-purple/30 flex items-center justify-center text-cyber-purple text-xl mb-6">
+                            <i class="fa-solid fa-fire-flame-curved"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 dark:text-white text-slate-900">Star Lifting</h3>
+                        <p class="dark:text-slate-400 text-slate-600 text-sm leading-relaxed mb-6">
+                            Advanced magnetic and plasma techniques used to strip outer layers of active stars, harvesting raw matter (hydrogen/helium) and feeding it into the computronium conversion factories.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t dark:border-cyber-border border-slate-200 flex items-center justify-between text-xs font-mono dark:text-slate-400 text-slate-500">
+                        <span>Scale: Stellar Harvest</span>
+                        <span class="text-cyber-purple">Active Mining</span>
+                    </div>
+                </div>
+
+                <!-- 5. Computronium Conversion -->
+                <div class="glass-panel p-8 rounded-2xl flex flex-col justify-between group hover:border-cyber-cyan transition-all">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-cyber-cyan/10 border border-cyber-cyan/30 flex items-center justify-center text-cyber-cyan text-xl mb-6">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 dark:text-white text-slate-900">Computronium Conversion</h3>
+                        <p class="dark:text-slate-400 text-slate-600 text-sm leading-relaxed mb-6">
+                            The rapid gray-goo or structured nanite wave that transforms barren asteroids, moons, and dead planets into shimmering,thinking crystalline lattices capable of hosting trillions of simulated consciousnesses.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t dark:border-cyber-border border-slate-200 flex items-center justify-between text-xs font-mono dark:text-slate-400 text-slate-500">
+                        <span>Scale: Universal</span>
+                        <span class="text-cyber-cyan">Singularity</span>
+                    </div>
+                </div>
+
+                <!-- 6. Holographic Computing -->
+                <div class="glass-panel p-8 rounded-2xl flex flex-col justify-between group hover:border-cyber-blue transition-all">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-cyber-blue/10 border border-cyber-blue/30 flex items-center justify-center text-cyber-blue text-xl mb-6">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 dark:text-white text-slate-900">Black-Hole & Holographic Engines</h3>
+                        <p class="dark:text-slate-400 text-slate-600 text-sm leading-relaxed mb-6">
+                            Pushing past ordinary matter limits by utilizing event horizons and quantum gravity boundaries, storing maximum information on 2D boundary surfaces (Holographic principle) around micro black holes.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t dark:border-cyber-border border-slate-200 flex items-center justify-between text-xs font-mono dark:text-slate-400 text-slate-500">
+                        <span>Scale: Quantum Gravity</span>
+                        <span class="text-cyber-blue">Max Theoretical</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="converter" class="py-24 px-4 sm:px-6 lg:px-8 relative dark:bg-cyber-card/30 bg-slate-100 border-t dark:border-cyber-border border-slate-200">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-cyber-cyan text-xs font-mono uppercase tracking-widest">Interactive Simulator</span>
+                <h2 class="text-3xl sm:text-5xl font-extrabold mt-2 mb-4">Matter Converter Sandbox</h2>
+                <p class="dark:text-slate-400 text-slate-600">Select ordinary matter samples and initiate subatomic reconstruction into pure Computronium.</p>
+            </div>
+
+            <div class="glass-panel p-8 sm:p-12 rounded-3xl border border-cyber-cyan/30 shadow-2xl relative overflow-hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                    <!-- Left: Target Selector -->
+                    <div class="lg:col-span-5 space-y-6">
+                        <h3 class="text-sm font-mono text-cyber-cyan uppercase tracking-wider">1. Select Substrate Source</h3>
+                        
+                        <div class="space-y-3">
+                            <button onclick="selectTarget('rock')" id="btn-rock" class="w-full p-4 rounded-xl glass-panel text-left flex items-center justify-between border border-cyber-cyan/50 transition-all group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-lg dark:bg-slate-800 bg-slate-200 flex items-center justify-center dark:text-slate-400 text-slate-600 group-hover:text-cyber-cyan">
+                                        <i class="fa-solid fa-mountain text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold dark:text-white text-slate-900">Silicate Asteroid / Rock</div>
+                                        <div class="text-xs dark:text-slate-400 text-slate-500 font-mono">Mass: 10,000 kg (Inert)</div>
+                                    </div>
+                                </div>
+                                <span class="w-3 h-3 rounded-full bg-cyber-cyan shadow-sm shadow-cyber-cyan" id="dot-rock"></span>
+                            </button>
+
+                            <button onclick="selectTarget('planet')" id="btn-planet" class="w-full p-4 rounded-xl glass-panel text-left flex items-center justify-between border dark:border-cyber-border border-slate-300 transition-all group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-lg dark:bg-slate-800 bg-slate-200 flex items-center justify-center dark:text-slate-400 text-slate-600 group-hover:text-cyber-cyan">
+                                        <i class="fa-solid fa-earth-americas text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold dark:text-white text-slate-900">Terrestrial Planet (Earth-like)</div>
+                                        <div class="text-xs dark:text-slate-400 text-slate-500 font-mono">Mass: 5.97 × 10²⁴ kg</div>
+                                    </div>
+                                </div>
+                                <span class="w-3 h-3 rounded-full bg-slate-400 dark:bg-slate-700" id="dot-planet"></span>
+                            </button>
+
+                            <button onclick="selectTarget('star')" id="btn-star" class="w-full p-4 rounded-xl glass-panel text-left flex items-center justify-between border dark:border-cyber-border border-slate-300 transition-all group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-lg dark:bg-slate-800 bg-slate-200 flex items-center justify-center dark:text-slate-400 text-slate-600 group-hover:text-cyber-cyan">
+                                        <i class="fa-solid fa-sun text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold dark:text-white text-slate-900">G-Type Star (Solar Mass)</div>
+                                        <div class="text-xs dark:text-slate-400 text-slate-500 font-mono">Mass: 1.99 × 10³⁰ kg</div>
+                                    </div>
+                                </div>
+                                <span class="w-3 h-3 rounded-full bg-slate-400 dark:bg-slate-700" id="dot-star"></span>
+                            </button>
+                        </div>
+
+                        <button onclick="startConversion()" id="convertBtn" class="w-full py-4 rounded-xl bg-gradient-to-r from-cyber-cyan to-cyber-blue text-black font-bold uppercase tracking-wider hover:opacity-95 shadow-xl shadow-cyber-cyan/30 transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-bolt"></i> Initiate Subatomic Scan & Convert
+                        </button>
+                    </div>
+
+                    <!-- Right: Simulation Visual & Live Output -->
+                    <div class="lg:col-span-7 sim-box p-6 sm:p-8 rounded-2xl border flex flex-col justify-between min-h-[400px]">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-xs font-mono dark:text-slate-400 text-slate-500 uppercase">Conversion Status HUD</span>
+                                <span id="conversionStatusBadge" class="px-2.5 py-1 rounded dark:bg-slate-800 bg-slate-200 dark:text-slate-300 text-slate-700 text-xs font-mono">IDLE / READY</span>
+                            </div>
+
+                            <!-- Animated Visual Representation -->
+                            <div class="relative h-48 rounded-xl dark:bg-cyber-card/60 bg-white border dark:border-cyber-border border-slate-300 flex items-center justify-center overflow-hidden mb-6 shadow-inner">
+                                <div id="simObjectContainer" class="relative z-10 text-center transition-all duration-700">
+                                    <i id="simIcon" class="fa-solid fa-mountain text-6xl dark:text-slate-400 text-slate-500 transition-all duration-700"></i>
+                                    <div id="simLabel" class="text-xs font-mono dark:text-slate-300 text-slate-700 mt-3 tracking-widest">SUBSTRATE: SILICATE ROCK</div>
+                                </div>
+
+                                <!-- Scanning Laser Line -->
+                                <div id="scanLaser" class="absolute top-0 bottom-0 w-1 bg-cyber-cyan shadow-[0_0_15px_#00f0ff] opacity-0 transition-opacity"></div>
+                            </div>
+
+                            <!-- Progress Bar -->
+                            <div class="space-y-2 mb-6">
+                                <div class="flex justify-between text-xs font-mono">
+                                    <span class="dark:text-slate-400 text-slate-600">Reconfiguration Progress:</span>
+                                    <span id="progressPercent" class="text-cyber-cyan font-bold">0%</span>
+                                </div>
+                                <div class="w-full h-2 rounded-full dark:bg-cyber-dark bg-slate-200 overflow-hidden p-0.5 border dark:border-cyber-border border-slate-300">
+                                    <div id="progressBar" class="h-full bg-gradient-to-r from-cyber-cyan to-cyber-green rounded-full w-0 transition-all duration-300"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Metrics -->
+                        <div class="grid grid-cols-2 gap-4 pt-4 border-t dark:border-cyber-border border-slate-300">
+                            <div>
+                                <div class="text-[10px] font-mono dark:text-slate-500 text-slate-500 uppercase">Computed Operations</div>
+                                <div id="resOps" class="text-lg font-bold text-cyber-cyan font-mono">0.00 OPS</div>
+                            </div>
+                            <div>
+                                <div class="text-[10px] font-mono dark:text-slate-500 text-slate-500 uppercase">Entropy / Waste Heat</div>
+                                <div id="resHeat" class="text-lg font-bold text-cyber-blue font-mono">0.00 Joules</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 px-4 sm:px-6 lg:px-8 border-t dark:border-cyber-border border-slate-200 text-center text-xs font-mono dark:text-slate-500 text-slate-500">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-microchip text-cyber-cyan"></i>
+                <span class="dark:text-slate-300 text-slate-800 font-bold tracking-wider">COMPUTRONIUM SUBSTRATE</span>
+            </div>
+            <div>
+                Designed for maximum information density. Bounded by universal physical laws.
+            </div>
+            <div class="text-cyber-cyan">
+                [ POST-SINGULARITY PROTOCOL ]
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- Theme Toggle Logic ---
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if(body.classList.contains('dark')) {
+                body.classList.remove('dark');
+                themeIcon.className = 'fa-solid fa-moon text-lg text-cyber-blue';
+                updateParticleColor(false);
+            } else {
+                body.classList.add('dark');
+                themeIcon.className = 'fa-solid fa-sun text-lg text-cyber-cyan';
+                updateParticleColor(true);
+            }
+        }
+
+        // Background Three.js Particle/Grid Animation
+        const canvas = document.getElementById('bgCanvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const particleCount = 700;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+
+        for(let i = 0; i < particleCount * 3; i++) {
+            positions[i] = (Math.random() - 0.5) * 50;
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const material = new THREE.PointsMaterial({
+            color: 0x00f0ff,
+            size: 0.14,
+            transparent: true,
+            opacity: 0.65
+        });
+
+        const particleSystem = new THREE.Points(geometry, material);
+        scene.add(particleSystem);
+        camera.position.z = 25;
+
+        function updateParticleColor(isDark) {
+            if(isDark) {
+                material.color.setHex(0x00f0ff);
+                material.opacity = 0.65;
+            } else {
+                material.color.setHex(0x0077ff);
+                material.opacity = 0.45;
+            }
+        }
+
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX - window.innerWidth / 2) * 0.0005;
+            mouseY = (e.clientY - window.innerHeight / 2) * 0.0005;
+        });
+
+        function animateBg() {
+            requestAnimationFrame(animateBg);
+            particleSystem.rotation.y += 0.001 + mouseX;
+            particleSystem.rotation.x += 0.0005 + mouseY;
+            renderer.render(scene, camera);
+        }
+        animateBg();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- Physics Calculator Logic ---
+        const massRange = document.getElementById('massRange');
+        const massValue = document.getElementById('massValue');
+        const energyRange = document.getElementById('energyRange');
+        const energyValue = document.getElementById('energyValue');
+        const tempRange = document.getElementById('tempRange');
+        const tempValue = document.getElementById('tempValue');
+
+        const outBremermann = document.getElementById('outBremermann');
+        const outLandauer = document.getElementById('outLandauer');
+        const outBekenstein = document.getElementById('outBekenstein');
+        const outStatus = document.getElementById('outStatus');
+
+        function updateCalculator() {
+            const m = parseFloat(massRange.value);
+            const E = parseFloat(energyRange.value);
+            const T = parseFloat(tempRange.value);
+
+            massValue.textContent = m >= 1000 ? (m/1000).toFixed(1) + ' metric tons' : m.toFixed(3) + ' kg';
+            energyValue.textContent = E.toExponential(3) + ' J';
+            tempValue.textContent = T + ' K';
+
+            const h = 6.626e-34;
+            const c = 3e8;
+            const bremVal = (m * c * c) / h;
+            outBremermann.textContent = bremVal.toExponential(2) + ' ops/sec';
+
+            const k_B = 1.38e-23;
+            const landauerVal = k_B * T * Math.LN2;
+            outLandauer.textContent = landauerVal.toExponential(2) + ' Joules/bit';
+
+            const bekensteinVal = (E * 1e15) / (1.38e-23 * T + 1);
+            outBekenstein.textContent = bekensteinVal.toExponential(2) + ' Bits';
+
+            if(T < 10) {
+                outStatus.textContent = "Cryogenic superconductor state. Thermal noise minimized.";
+            } else if(T > 500) {
+                outStatus.textContent = "High thermal dissipation warning. Cooling matrices engaged.";
+            } else {
+                outStatus.textContent = "Optimal quantum density achieved. Zero thermodynamic waste detected.";
+            }
+        }
+
+        massRange.addEventListener('input', updateCalculator);
+        energyRange.addEventListener('input', updateCalculator);
+        tempRange.addEventListener('input', updateCalculator);
+
+        function setPreset(m, E, T) {
+            massRange.value = m;
+            energyRange.value = E;
+            tempRange.value = T;
+            updateCalculator();
+        }
+
+        updateCalculator();
+
+        // --- Matter Converter Sandbox Logic ---
+        let currentTarget = 'rock';
+        const targets = {
+            rock: { name: 'SILICATE ASTEROID / ROCK', mass: '10,000 kg', icon: 'fa-mountain', ops: '1.36 × 10⁵⁴ OPS', heat: '1.05 × 10⁻²⁰ J' },
+            planet: { name: 'TERRESTRIAL PLANET', mass: '5.97 × 10²⁴ kg', icon: 'fa-earth-americas', ops: '8.12 × 10⁷⁴ OPS', heat: '2.45 × 10⁻²¹ J' },
+            star: { name: 'G-TYPE SOLAR MASS', mass: '1.99 × 10³⁰ kg', icon: 'fa-sun', ops: '2.70 × 10⁸⁰ OPS', heat: '4.89 × 10⁻²² J' }
+        };
+
+        function selectTarget(type) {
+            currentTarget = type;
+            ['rock', 'planet', 'star'].forEach(t => {
+                const btn = document.getElementById(`btn-${t}`);
+                const dot = document.getElementById(`dot-${t}`);
+                if(t === type) {
+                    btn.classList.add('border-cyber-cyan');
+                    dot.classList.remove('bg-slate-400', 'dark:bg-slate-700');
+                    dot.classList.add('bg-cyber-cyan', 'shadow-sm', 'shadow-cyber-cyan');
+                } else {
+                    btn.classList.remove('border-cyber-cyan');
+                    dot.classList.add('bg-slate-400', 'dark:bg-slate-700');
+                    dot.classList.remove('bg-cyber-cyan', 'shadow-sm', 'shadow-cyber-cyan');
+                }
+            });
+
+            const data = targets[type];
+            document.getElementById('simIcon').className = `fa-solid ${data.icon} text-6xl text-cyber-cyan transition-all duration-700`;
+            document.getElementById('simLabel').textContent = `SUBSTRATE: ${data.name}`;
+            document.getElementById('resOps').textContent = '0.00 OPS';
+            document.getElementById('resHeat').textContent = '0.00 Joules';
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressPercent').textContent = '0%';
+            document.getElementById('conversionStatusBadge').textContent = 'IDLE / READY';
+        }
+
+        function startConversion() {
+            const btn = document.getElementById('convertBtn');
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+
+            const badge = document.getElementById('conversionStatusBadge');
+            badge.textContent = 'SCANNING & RECONFIGURING...';
+            badge.className = 'px-2.5 py-1 rounded bg-cyber-cyan/20 text-cyber-cyan text-xs font-mono animate-pulse';
+
+            const laser = document.getElementById('scanLaser');
+            laser.style.opacity = '1';
+            laser.style.animation = 'scanAnim 1.5s infinite alternate ease-in-out';
+
+            let progress = 0;
+            const data = targets[currentTarget];
+            const interval = setInterval(() => {
+                progress += 2;
+                document.getElementById('progressBar').style.width = progress + '%';
+                document.getElementById('progressPercent').textContent = progress + '%';
+
+                if(progress <= 50) {
+                    document.getElementById('simIcon').className = `fa-solid ${data.icon} text-6xl text-cyber-blue animate-spin`;
+                } else {
+                    document.getElementById('simIcon').className = `fa-solid fa-microchip text-6xl text-cyber-green animate-pulse`;
+                }
+
+                if(progress >= 100) {
+                    clearInterval(interval);
+                    laser.style.opacity = '0';
+                    laser.style.animation = '';
+                    badge.textContent = 'CONVERSION COMPLETE';
+                    badge.className = 'px-2.5 py-1 rounded bg-cyber-green/20 text-cyber-green text-xs font-mono';
+
+                    document.getElementById('resOps').textContent = data.ops;
+                    document.getElementById('resHeat').textContent = data.heat;
+
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50');
+                }
+            }, 50);
+        }
+    </script>
+    <style>
+        @keyframes scanAnim {
+            0% { left: 0%; }
+            100% { left: 100%; }
+        }
+    </style>
+</body>
+</html>
